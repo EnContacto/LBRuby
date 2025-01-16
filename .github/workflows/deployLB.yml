@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [qa, prod] # Las etiquetas se definen directamente en minúsculas
+        environment: [qa, prod] # Etiquetas definidas directamente en minúsculas
 
     steps:
       - name: Checkout Code
