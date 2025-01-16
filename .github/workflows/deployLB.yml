@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [QA, PROD]
+        environment: [qa, prod] # Las etiquetas se definen directamente en minúsculas
 
     steps:
       - name: Checkout Code
@@ -34,9 +34,9 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           echo "Building Docker image for ${{ matrix.environment }}..."
-          docker build -t ${{ env.DOCKER_REPOSITORY }}:${{ matrix.environment | toLowerCase }} .
+          docker build -t ${{ env.DOCKER_REPOSITORY }}:${{ matrix.environment }} .
           echo "Pushing Docker image to DockerHub..."
-          docker push ${{ env.DOCKER_REPOSITORY }}:${{ matrix.environment | toLowerCase }}
+          docker push ${{ env.DOCKER_REPOSITORY }}:${{ matrix.environment }}
           echo "Docker image built and pushed successfully for ${{ matrix.environment }}."
 
   # Job 2: Despliegue en QA
@@ -51,6 +51,7 @@ jobs:
           echo "Deploying QA Docker image to EC2 instance..."
           ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_QA }}") ubuntu@${{ secrets.EC2_HOST_QA }} "
             if ! command -v docker &> /dev/null; then
+              echo 'Installing Docker...'
               sudo apt update && sudo apt install -y docker.io
               sudo systemctl start docker
               sudo systemctl enable docker
@@ -77,6 +78,7 @@ jobs:
           echo "Deploying Production Docker image to EC2 instance..."
           ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_PROD }}") ubuntu@${{ secrets.EC2_HOST_PROD }} "
             if ! command -v docker &> /dev/null; then
+              echo 'Installing Docker...'
               sudo apt update && sudo apt install -y docker.io
               sudo systemctl start docker
               sudo systemctl enable docker
@@ -90,3 +92,4 @@ jobs:
             sudo docker run -d --name myapp -p ${{ env.PROD_APP_PORT }}:${{ env.PROD_APP_PORT }} ${{ env.DOCKER_REPOSITORY }}:prod
           "
           echo "Production Docker image deployed successfully."
+
