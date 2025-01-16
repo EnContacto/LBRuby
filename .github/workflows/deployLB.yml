@@ -49,7 +49,9 @@ jobs:
       - name: Deploy QA Image to EC2 Host 1
         run: |
           echo "Deploying QA Docker image to EC2 Host 1..."
-          ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_QA }}") ec2-user@${{ secrets.EC2_HOST_QA_1 }} "
+          echo "${{ secrets.EC2_KEY_QA }}" > /tmp/qa_key
+          chmod 600 /tmp/qa_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/qa_key ec2-user@${{ secrets.EC2_HOST_QA_1 }} "
             if ! command -v docker &> /dev/null; then
               echo 'Installing Docker...'
               sudo yum update -y
@@ -70,7 +72,9 @@ jobs:
       - name: Deploy QA Image to EC2 Host 2
         run: |
           echo "Deploying QA Docker image to EC2 Host 2..."
-          ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_QA }}") ec2-user@${{ secrets.EC2_HOST_QA_2 }} "
+          echo "${{ secrets.EC2_KEY_QA }}" > /tmp/qa_key
+          chmod 600 /tmp/qa_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/qa_key ec2-user@${{ secrets.EC2_HOST_QA_2 }} "
             if ! command -v docker &> /dev/null; then
               echo 'Installing Docker...'
               sudo yum update -y
@@ -98,7 +102,9 @@ jobs:
       - name: Deploy Production Image to EC2 Host 1
         run: |
           echo "Deploying Production Docker image to EC2 Host 1..."
-          ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_PROD }}") ec2-user@${{ secrets.EC2_HOST_PROD_1 }} "
+          echo "${{ secrets.EC2_KEY_PROD }}" > /tmp/prod_key
+          chmod 600 /tmp/prod_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/prod_key ec2-user@${{ secrets.EC2_HOST_PROD_1 }} "
             if ! command -v docker &> /dev/null; then
               echo 'Installing Docker...'
               sudo yum update -y
@@ -119,7 +125,9 @@ jobs:
       - name: Deploy Production Image to EC2 Host 2
         run: |
           echo "Deploying Production Docker image to EC2 Host 2..."
-          ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_PROD }}") ec2-user@${{ secrets.EC2_HOST_PROD_2 }} "
+          echo "${{ secrets.EC2_KEY_PROD }}" > /tmp/prod_key
+          chmod 600 /tmp/prod_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/prod_key ec2-user@${{ secrets.EC2_HOST_PROD_2 }} "
             if ! command -v docker &> /dev/null; then
               echo 'Installing Docker...'
               sudo yum update -y
@@ -140,7 +148,9 @@ jobs:
       - name: Deploy Production Image to EC2 Host 3
         run: |
           echo "Deploying Production Docker image to EC2 Host 3..."
-          ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_PROD }}") ec2-user@${{ secrets.EC2_HOST_PROD_3 }} "
+          echo "${{ secrets.EC2_KEY_PROD }}" > /tmp/prod_key
+          chmod 600 /tmp/prod_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/prod_key ec2-user@${{ secrets.EC2_HOST_PROD_3 }} "
             if ! command -v docker &> /dev/null; then
               echo 'Installing Docker...'
               sudo yum update -y
@@ -161,7 +171,9 @@ jobs:
       - name: Deploy Production Image to EC2 Host 4
         run: |
           echo "Deploying Production Docker image to EC2 Host 4..."
-          ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_PROD }}") ec2-user@${{ secrets.EC2_HOST_PROD_4 }} "
+          echo "${{ secrets.EC2_KEY_PROD }}" > /tmp/prod_key
+          chmod 600 /tmp/prod_key
+          ssh -o StrictHostKeyChecking=no -i /tmp/prod_key ec2-user@${{ secrets.EC2_HOST_PROD_4 }} "
             if ! command -v docker &> /dev/null; then
               echo 'Installing Docker...'
               sudo yum update -y
