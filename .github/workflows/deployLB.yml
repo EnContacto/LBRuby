@@ -46,24 +46,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy QA Image to EC2
+      - name: Deploy QA Image to EC2 Instances
         run: |
-          echo "Deploying QA Docker image to EC2 instance..."
-          ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_QA }}") ubuntu@${{ secrets.EC2_HOST_QA }} "
-            if ! command -v docker &> /dev/null; then
-              echo 'Installing Docker...'
-              sudo apt update && sudo apt install -y docker.io
-              sudo systemctl start docker
-              sudo systemctl enable docker
-            fi
-            echo 'Pulling QA Docker image...'
-            sudo docker pull ${{ env.DOCKER_REPOSITORY }}:qa
-            echo 'Stopping and removing existing container...'
-            sudo docker stop myapp || true
-            sudo docker rm myapp || true
-            echo 'Running new container...'
-            sudo docker run -d --name myapp -p ${{ env.QA_APP_PORT }}:${{ env.QA_APP_PORT }} ${{ env.DOCKER_REPOSITORY }}:qa
-          "
+          echo "Deploying QA Docker image to EC2 instances..."
+          IFS=',' read -ra HOSTS <<< "${{ secrets.EC2_HOSTS_QA }}"
+          for HOST in "${HOSTS[@]}"; do
+            echo "Deploying to $HOST..."
+            ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_QA }}") ec2-user@$HOST "
+              if ! command -v docker &> /dev/null; then
+                echo 'Installing Docker...'
+                sudo yum update -y
+                sudo yum install -y docker
+                sudo service docker start
+                sudo usermod -aG docker ec2-user
+              fi
+              echo 'Pulling QA Docker image...'
+              sudo docker pull ${{ env.DOCKER_REPOSITORY }}:qa
+              echo 'Stopping and removing existing container...'
+              sudo docker stop myapp || true
+              sudo docker rm myapp || true
+              echo 'Running new container...'
+              sudo docker run -d --name myapp -p ${{ env.QA_APP_PORT }}:${{ env.QA_APP_PORT }} ${{ env.DOCKER_REPOSITORY }}:qa
+            "
+            echo "Deployment to $HOST completed."
+          done
           echo "QA Docker image deployed successfully."
 
   # Job 3: Despliegue en Producción
@@ -73,29 +79,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy Production Image to EC2
+      - name: Deploy Production Image to EC2 Instances
         run: |
-          echo "Deploying Production Docker image to EC2 instance..."
-          echo "${{ secrets.EC2_KEY_PROD }}" > /tmp/prod_key
-          chmod 600 /tmp/prod_key
-          ssh -o StrictHostKeyChecking=no -i /tmp/prod_key ec2-user@${{ secrets.EC2_HOST_PROD }} "
-            if ! command -v docker &> /dev/null; then
-              echo 'Installing Docker...'
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo service docker start
-              sudo usermod -aG docker ec2-user
-            fi
-            echo 'Pulling Production Docker image...'
-            sudo docker pull ${{ env.DOCKER_REPOSITORY }}:prod
-            echo 'Stopping and removing existing container...'
-            sudo docker stop myapp || true
-            sudo docker rm myapp || true
-            echo 'Running new container...'
-            sudo docker run -d --name myapp -p ${{ env.PROD_APP_PORT }}:${{ env.PROD_APP_PORT }} ${{ env.DOCKER_REPOSITORY }}:prod
-          "
-          rm -f /tmp/prod_key
+          echo "Deploying Production Docker image to EC2 instances..."
+          IFS=',' read -ra HOSTS <<< "${{ secrets.EC2_HOSTS_PROD }}"
+          for HOST in "${HOSTS[@]}"; do
+            echo "Deploying to $HOST..."
+            ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.EC2_KEY_PROD }}") ec2-user@$HOST "
+              if ! command -v docker &> /dev/null; then
+                echo 'Installing Docker...'
+                sudo yum update -y
+                sudo yum install -y docker
+                sudo service docker start
+                sudo usermod -aG docker ec2-user
+              fi
+              echo 'Pulling Production Docker image...'
+              sudo docker pull ${{ env.DOCKER_REPOSITORY }}:prod
+              echo 'Stopping and removing existing container...'
+              sudo docker stop myapp || true
+              sudo docker rm myapp || true
+              echo 'Running new container...'
+              sudo docker run -d --name myapp -p ${{ env.PROD_APP_PORT }}:${{ env.PROD_APP_PORT }} ${{ env.DOCKER_REPOSITORY }}:prod
+            "
+            echo "Deployment to $HOST completed."
+          done
           echo "Production Docker image deployed successfully."
-
-
-
