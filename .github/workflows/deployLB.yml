@@ -14,12 +14,12 @@ env:
   PROD_APP_PORT: 4568
 
 jobs:
-  # Job 1: Construcción y publicación en DockerHub
+  
   build-and-push:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [qa, prod] # Etiquetas definidas directamente en minúsculas
+        environment: [qa, prod] 
 
     steps:
       - name: Checkout Code
@@ -39,7 +39,7 @@ jobs:
           docker push ${{ env.DOCKER_REPOSITORY }}:${{ matrix.environment }}
           echo "Docker image built and pushed successfully for ${{ matrix.environment }}."
 
-  # Job 2: Despliegue en QA
+  
   deploy-to-qa:
     needs: build-and-push
     if: github.ref == 'refs/heads/QA'
@@ -92,7 +92,7 @@ jobs:
           "
           echo "Deployment to EC2 Host 2 completed."
 
-  # Job 3: Despliegue en Producción
+  
   deploy-to-prod:
     needs: build-and-push
     if: github.event_name == 'pull_request'
